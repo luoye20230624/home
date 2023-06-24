@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文本处理</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    textarea {
+      width: 80%;
+      resize: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>文本处理</h1>
+  <textarea id="input-text" rows="18" placeholder="在此粘贴文本"></textarea>
+  <br />
+  <label for="prefix">添加到行首:</label>
+  <input type="text" id="prefix" />
+  <br />
+  <label for="search">替换行尾的字符:</label>
+  <input type="text" id="search" />
+  <label for="replacement">替换为:</label>
+  <input type="text" id="replacement" />
+  <br />
+  <button onclick="processText()">处理文本</button>
+  <br />
+  <textarea id="output" rows="18" readonly></textarea>
+  <br />
+  <button onclick="copyText()">复制文本</button>
+  <button onclick="downloadOutput()">下载输出结果</button>
+
+  <script>
+    function processText() {
+      const inputText = document.getElementById('input-text').value;
+      const prefix = document.getElementById('prefix').value;
+      const search = document.getElementById('search').value;
+      const replacement = document.getElementById('replacement').value;
+      const output = document.getElementById('output');
+
+      const lines = inputText.split('\n');
+      const processedLines = lines.map(line => {
+        const newLine = prefix + line;
+        if (search && replacement) {
+          return newLine.replace(new RegExp(search + '$'), replacement);
+        }
+        return newLine;
+      });
+      output.value = processedLines.join('\n');
+    }
+
+    function copyText() {
+      const output = document.getElementById('output');
+      output.select();
+      document.execCommand('copy');
+    }
+
+    function downloadOutput() {
+      const outputText = document.getElementById('output').value;
+      if (!outputText) {
+        alert('请先处理文本');
+        return;
+      }
+
+      const fileName = prompt('请输入文件名（不包括扩展名）', 'output');
+      if (fileName) {
+        const fullFileName = `${fileName}.txt`;
+        const blob = new Blob([outputText], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fullFileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    }
+  </script>
+</body>
+</html>
